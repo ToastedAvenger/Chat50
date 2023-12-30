@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+
+{% block head %}
+
+    <script>
+        document.addEventListener("DOMContentLoaded", (event) => {
+            document.getElementsByTagName("nav")
+            // Get the select element and the element to be shown/hidden
+            var selectElement = document.getElementById('room_type');
+            var hiddenElement = document.getElementById('view');
+    
+            // Add an event listener to the select element
+            selectElement.addEventListener('change', function() {
+            // Check the selected option and show/hide the element accordingly
+            if (selectElement.value === 'private') {
+                hiddenElement.style.display = 'block';
+            } else {
+                hiddenElement.style.display = 'none';
+            }
+            });
+        });
+    </script>
+{% endblock %}
+
+
+{% block title %}
+
+{% endblock %}
+
+{% block main %}
+    {% set Select_option =  "Sir/Madam" %}
+    <form action="/create" method="post">
+        <div class="mb-3">
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="room_name" name="room_name" placeholder="Room Name" type="text">
+        </div>
+        <div class="mb-3">
+            <select class="form-select mx-auto w-auto" id="room_type" name="room_type">
+                <option selected disabled value="0">Choose</option>
+                <option value="public">Public</option>
+                <option value="private">Private</option>
+            </select>
+        </div>
+        <div id="view" style="display: none;">
+            <div class="mb-3">
+                <input class="form-control mx-auto w-auto" id="password" name="password" placeholder="Password" type="password">
+            </div>
+        </div>
+        <div class="mb-3">
+            <input class="form-control mx-auto w-auto" id="max_users" name="max_users" placeholder="Number of people" type="number" min="2" max="10">
+        </div>
+        <button class="btn btn-outline-light" type="submit">Create</button>
+    </form>
+{% endblock %}

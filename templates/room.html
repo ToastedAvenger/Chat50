@@ -1,0 +1,105 @@
+{% extends "layout.html" %}
+
+
+{% block head %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
+    <script>
+        
+        const socket = io.connect('http://' + document.domain + ':' + location.port + location.pathname);
+        
+        function sendMessage() {
+            const inputElement = document.getElementById('message');
+            const message = inputElement.value;
+            // Emit the message to the server
+            socket.emit('message', message, {namespace: window.location.pathname});
+
+            // Clear the input field
+            inputElement.value = '';
+        }
+        document.addEventListener("DOMContentLoaded", (event) => {
+            event.preventDefault()
+            const input = document.getElementById('message');
+            input.addEventListener("keypress", function (event) {
+                if (event.key === 'Enter') {
+                    sendMessage()
+                }
+            })
+        })
+
+        // Handle incoming messages from the server
+        socket.on('message', function(message) {
+            var array = message.split("\n")
+            var username = array[0]
+            var msg = array[1]
+            var borderDiv = document.createElement("div");
+            borderDiv.classList.add("border", "border-success", "rounded-end", "py-1", "px-2", "mb-3");
+            borderDiv.setAttribute("id", "msgDiv")
+
+            // Set username
+            var userDiv = document.createElement("div")
+            userDiv.style.textAlign = "left"
+            var spanUser = document.createElement("span")
+            spanUser.setAttribute("id", "msgSpan")
+            spanUser.style.color = "orangered"
+            spanUser.textContent = username
+            userDiv.appendChild(spanUser)
+            borderDiv.appendChild(userDiv)
+
+            // Set message
+            var msgDiv = document.createElement("div")
+            msgDiv.style.textAlign = "left"
+            var spanMessage = document.createElement("span");
+            spanMessage.setAttribute("id", "msgSpan")
+            spanMessage.textContent = msg;
+            msgDiv.appendChild(spanMessage)
+            
+            // Set Date
+            var dateDiv = document.createElement("div")
+            dateDiv.style.textAlign = "right"
+            var spanDate = document.createElement("span")
+            var current_time = new Date()
+            spanDate.textContent = current_time.getHours() + ":" + current_time.getMinutes()
+            spanDate.setAttribute("id", "msgSpan")
+            spanDate.style.fontSize = "medium"
+            dateDiv.appendChild(spanDate)
+
+            // // Append username, message and date to border
+            // borderDiv.appendChild(userDiv);
+            borderDiv.appendChild(msgDiv)
+            borderDiv.appendChild(dateDiv)
+            // Get the reference to the div where you want to append the span
+            var targetDiv = document.getElementById("msg-body");
+            // Append the border to the target div
+            targetDiv.appendChild(borderDiv);
+        });
+
+        function leave() {
+            url = location.pathname.split("/")[2]
+            socket.emit("url", url, {namespace: window.location.pathname})
+            window.location.href = "/public"
+        }
+    </script>
+
+{% endblock %}
+
+{% block title %}
+
+{% endblock %}
+
+{% block main %}
+    <div class="card bg-dark" style="height: 75vh;">
+        <div class="card-body px-2" style="text-align: right;">
+            <button class="btn btn-outline-danger" onclick="leave()" >Leave</button>
+        </div>
+        <div class="card-body overflow-auto rotated">
+            <div id="msg-body">
+            </div>
+        </div>
+    </div>
+    <div class=" input-group mb-3 position-relative">
+        <input class="form-control mx-auto w-auto" id="message" name="message" placeholder="Type Your Message Here" type="text">
+        <div class="input-group-append">
+            <button class="btn btn-outline-success" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+{% endblock %}
